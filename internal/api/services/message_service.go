@@ -17,12 +17,12 @@ func NewMessageService(db *pgxpool.Pool) *MessageService {
 	}
 }
 
-func (s *MessageService) GetMessagesByPublicKey(publicKey string) ([]dto.MessageDTO, error) {
+func (s *MessageService) GetMessagesByPublicKey(publicKey string, limit, offset int64) ([]dto.MessageDTO, error) {
 	var messagesRes []dto.MessageDTO
 
 	messageRepo := repositories.NewMessageRepository(s.db)
 
-	messages, err := messageRepo.GetMessagesByPublicKey(context.Background(), publicKey)
+	messages, err := messageRepo.GetMessagesByPublicKey(context.Background(), publicKey, limit, offset)
 	if err != nil {
 		return nil, err
 	}

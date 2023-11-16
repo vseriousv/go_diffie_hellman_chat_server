@@ -23,13 +23,15 @@ func NewMessageRepository(db *pgxpool.Pool) *MessageRepository {
 	return &MessageRepository{db}
 }
 
-func (r *MessageRepository) GetMessagesByPublicKey(ctx context.Context, publicKey string) ([]*Message, error) {
+func (r *MessageRepository) GetMessagesByPublicKey(ctx context.Context, publicKey string, limit, offset int64) ([]*Message, error) {
 	rows, err := r.db.Query(ctx, `
 select m.* from messages m
 where public_key_from = $1
 or public_key_to = $1
-order by created_at desc;
-`, publicKey)
+order by created_at desc
+limit $2
+offset $3;
+`, publicKey, limit, offset)
 	if err != nil {
 		return nil, err
 	}

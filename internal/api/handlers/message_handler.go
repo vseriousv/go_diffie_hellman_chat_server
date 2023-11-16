@@ -7,6 +7,7 @@ import (
 	"github.com/vseriousv/go_diffie_hellman_chat_server/internal/api/services"
 	"io"
 	"net/http"
+	"strconv"
 )
 
 type MessageHandler struct {
@@ -21,8 +22,30 @@ func NewMessageHandler(messageService *services.MessageService) *MessageHandler 
 
 func (h *MessageHandler) GetMessagesByPublicKey(w http.ResponseWriter, r *http.Request) {
 	publicKey := chi.URLParam(r, "publicKey")
+	limitStr := r.URL.Query().Get("limit")
+	offsetStr := r.URL.Query().Get("offset")
 
-	messages, err := h.messageService.GetMessagesByPublicKey(publicKey)
+	var limit int64 = 10
+	var offset int64 = 0
+
+	var err error
+	if limitStr != "" {
+		limit, err = strconv.ParseInt(limitStr, 10, 64)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+	}
+
+	if offsetStr != "" {
+		offset, err = strconv.ParseInt(offsetStr, 10, 64)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+	}
+
+	messages, err := h.messageService.GetMessagesByPublicKey(publicKey, limit, offset)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
