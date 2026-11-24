@@ -17,5 +17,5 @@ RUN pip install --upgrade pip && pip install ansible
 
 COPY --from=builder /api /api
 
-# Запускаем сервисы
+# Start the services
 CMD ["/api"]
